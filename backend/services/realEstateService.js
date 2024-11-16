@@ -11,7 +11,7 @@ async function extractFeaturesFromText(text) {
                 { role: "system", content: "You are an assistant that extracts features from real estate descriptions." },
                 { role: "user", content: `Extract the following features from the text: "title", "displayAddress", "bathrooms", "bedrooms", "addedOn", "type", "price", "sizeMin", "furnishing". If a feature is not present in the text, return it as null.\n\nText: "${text}"\n\nFeatures (comma-separated):` }
             ],
-            max_tokens: 150,
+            // max_tokens: 150,
             temperature: 0.7
         }, {
             headers: {
@@ -20,20 +20,17 @@ async function extractFeaturesFromText(text) {
             }
         });
 
-        // Extract content from the message object
         if (!response.data.choices || !response.data.choices[0] || !response.data.choices[0].message) {
             throw new Error('Invalid response format from API');
         }
 
         const rawText = response.data.choices[0].message.content;
 
-        // Handle response parsing errors or unexpected formats
         const featuresArray = rawText.trim().split(',').map(item => {
             const parts = item.split(': ');
-            return parts.length > 1 ? parts[1].trim().replace(/['"]+/g, '') : 'null'; // Remove quotes and handle missing values
+            return parts.length > 1 ? parts[1].trim().replace(/['"]+/g, '') : 'null'; 
         });
 
-        // Map extracted values to feature keys
         const features = {
             title: featuresArray[0] || 'null',
             displayAddress: featuresArray[1] || 'null',
@@ -60,7 +57,7 @@ function cleanProperties(features) {
     // Ensure numbers are parsed correctly and handle null values
     cleanedFeatures.bedrooms = cleanedFeatures.bedrooms !== 'null' && cleanedFeatures.bedrooms !== null ? parseInt(cleanedFeatures.bedrooms, 10) : null;
     cleanedFeatures.bathrooms = cleanedFeatures.bathrooms !== 'null' && cleanedFeatures.bathrooms !== null ? parseInt(cleanedFeatures.bathrooms, 10) : null;
-    cleanedFeatures.price = cleanedFeatures.price !== 'null' && cleanedFeatures.price !== null ? parseFloat(cleanedFeatures.price) : null;
+    cleanedFeatures.price = cleanedFeatures.price !== 'null' && cleanedFeatures.price !== null ? parseInt(cleanedFeatures.price) : null;
 
     return cleanedFeatures;
 }
