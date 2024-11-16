@@ -1,45 +1,81 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
+import "./Chatbot.css"; // Import the CSS file
 
 function Chatbot() {
-    const [query, setQuery] = useState('');
-    const [response, setResponse] = useState('');
+    const [query, setQuery] = useState("");
+    const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
 
     const handleSend = async () => {
+        if (!query.trim()) return;
+
         setLoading(true);
-        setError('');
+        setError("");
+
         try {
-            const result = await axios.post('http://localhost:5000/api/chatbot/message', { message: query });
-            console.log('Response from chatbot:', result.data.response);
-            setResponse(result.data.response);
-            setQuery(''); // Optionally clear the input field
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                { sender: "user", text: query }
+            ]);
+
+            const result = await axios.post("http://localhost:5000/api/chatbot/message", {
+                message: query,
+            });
+        
+            let responseText = result.data.response;
+        
+            const responseSegments = responseText.split('\n');
+        
+            const newMessages = responseSegments.map(segment => ({
+                sender: "bot",
+                text: segment.trim()
+            }));
+        
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                ...newMessages,
+            ]);
+            setQuery("");
         } catch (error) {
-            console.error('Error fetching chatbot response:', error);
-            setError('Error connecting to the chatbot. Please try again later.');
+            console.error("Error fetching chatbot response:", error);
+            setError("Error connecting to the chatbot. Please try again later.");
         } finally {
             setLoading(false);
         }
+   
     };
 
     return (
-        <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
-            <h1>Real Estate Chatbot</h1>
-            <textarea
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Type your query here..."
-                style={{ width: '100%', height: '100px', marginBottom: '10px' }}
-                disabled={loading}
-            ></textarea>
-            <button onClick={handleSend} style={{ padding: '10px 20px' }} disabled={loading}>
-                {loading ? 'Sending...' : 'Send'}
-            </button>
-            {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
-            <div style={{ marginTop: '20px', border: '1px solid #ddd', padding: '10px' }}>
-                <h3>Response:</h3>
-                <p>{response}</p>
+        <div className="chatbot-container">
+            <div className="chatbot-box">
+                <div className="chatbot-header">Real Estate Chatbot</div>
+                <div className="chat-window">
+                    {messages.map((message, index) => (
+                        <div
+                            key={index}
+                            className={`message-bubble ${
+                                message.sender === "user" ? "user-bubble" : "bot-bubble"
+                            }`}
+                        >
+                            {message.text}
+                        </div>
+                    ))}
+                </div>
+                {error && <div className="error">{error}</div>}
+                <div className="input-container">
+                    <textarea
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Unlock Doors with Our Chatbot!..."
+                        className="input"
+                        disabled={loading}
+                    ></textarea>
+                    <button onClick={handleSend} className="send-button" disabled={loading}>
+                        {loading ? "Sending..." : "Send"}
+                    </button>
+                </div>
             </div>
         </div>
     );

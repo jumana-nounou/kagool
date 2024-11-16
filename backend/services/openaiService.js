@@ -5,17 +5,17 @@ exports.generateResponse = async (message, properties) => {
     const apiKey = process.env.AZURE_OPENAI_API_KEY;
 
     const formattedProperties = JSON.stringify(properties, null, 2);
-    const userMessage = `User is looking for real estate properties in UAE with the following criteria: ${message}. Here are some properties that match the criteria: ${formattedProperties}. Provide a summary of these properties.`;
+    const userMessage = `User is looking for real estate properties in UAE with the following criteria: ${message}. Here are some properties that match the criteria: ${formattedProperties}. Provide a summary paragraph of each of these properties and each paragragh should be seperated with a new line`;
 
     try {
         const response = await axios.post(
             `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=${process.env.AZURE_OPENAI_API_VERSION}`,
             {
                 messages: [
-                    { role: "system", content: "You are a real estate assistant providing summaries of property listings." },
+                    { role: "system", content: "You are a real estate assistant providing summaries of property listings. The output will be passed to frontend in one message so it should be presentable and simple" },
                     { role: "user", content: userMessage }
                 ],
-                // max_tokens: 450,
+                max_tokens: 4096,
                 temperature: 0.7
             },
             {

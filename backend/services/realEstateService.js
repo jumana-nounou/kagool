@@ -69,45 +69,58 @@ const searchPropertiesInCSV = (cleanedProperties, csvFilePath) => {
         fs.createReadStream(csvFilePath)
             .pipe(csv())
             .on('data', (data) => {
-                // Clean and normalize data
-                const row = {
-                    displayAddress: data.displayAddress ? data.displayAddress.trim().toLowerCase() : null,
-                    bedrooms: data.bedrooms ? parseInt(data.bedrooms, 10) : null,
-                    bathrooms: data.bathrooms ? parseInt(data.bathrooms, 10) : null,
-                    price: data.price ? parseFloat(data.price) : null,
-                    type: data.type ? data.type.trim().toLowerCase() : null
-                };
+                try {
+                    // Ensure required fields are present and normalize the row data
+                    const row = {
+                        displayAddress: data.displayAddress?.trim().toLowerCase() || null,
+                        bedrooms: parseInt(data.bedrooms, 10) || 0,
+                        bathrooms: parseInt(data.bathrooms, 10) || 0,
+                        price: parseInt(data.price, 10) || 0,
+                        type: data.type?.trim().toLowerCase() || null
+                    };
 
-                const matches = cleanedProperties.filter(property => {
-                    let isMatch = true;
+                    // If displayAddress or type is missing, skip this row
+                    if (!row.displayAddress || !row.type) return;
 
-                    if (row.bedrooms !== property.bedrooms) {
-                        isMatch = false;
+                    // Filter properties using a flexible scoring system
+                    const matches = cleanedProperties.filter(property => {
+                        let score = 0;
+
+                        // Match bedrooms exactly
+                        if (row.bedrooms === property.bedrooms) score++;
+
+                        // Ensure price does not exceed property price
+                        if (row.price <= property.price) score++;
+
+                        // Partial match for displayAddress (must match exactly or partially)
+                        if (
+                            property.displayAddress &&
+                            row.displayAddress.includes(property.displayAddress.toLowerCase())
+                        ) score++;
+
+                        // Match property type exactly
+                        if (property.type && row.type === property.type) score++;
+
+                        return score >= 3; // Threshold for considering a match
+                    });
+
+                    // Add the original data to results if matches are found
+                    if (matches.length > 0) {
+                        results.push(data);
                     }
-
-                    if (property.price && row.price && row.price > property.price) {
-                        isMatch = false;
-                    }
-
-                    if (property.displayAddress && row.displayAddress && !row.displayAddress.includes(property.displayAddress.toLowerCase())) {
-                        isMatch = false;
-                    }
-
-                    return isMatch;
-                });
-
-                if (matches.length > 0) {
-                    results.push(data); // Push original data row
+                } catch (error) {
+                    console.error(`Error processing row: ${error.message}`);
                 }
             })
             .on('end', () => {
                 resolve(results);
             })
             .on('error', (error) => {
-                reject(error);
+                reject(`Error reading CSV file: ${error.message}`);
             });
     });
 };
+
 
 exports.searchProperties = async (message) => {
     console.log('Searching properties with message:', message);
