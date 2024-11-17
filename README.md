@@ -8,6 +8,8 @@ This project is a real estate chatbot integrated with Azure OpenAI. The chatbot 
 
 - Node.js
 - npm
+- Express (for the backend)
+- React (for the frontend)
 
 ### Installation
 
