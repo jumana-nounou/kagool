@@ -50,3 +50,10 @@ To run the application, you need to start both the frontend and backend servers 
 ### Usage
 
 Once both servers are running, you can access the chatbot application in your browser at `http://localhost:3000`.
+
+### Functionality
+- **User Input**: Users can input their real estate requirements through the chatbot interface.
+- **Azure OpenAI Integration**: The backend uses Azure OpenAI to process the user's input and extract relevant features.
+- **Property Search**: The extracted features are used to search for matching properties in a CSV file containing real estate data.
+- **Response Generation**: The backend generates a response summarizing the matching properties and sends it back to the frontend.
+- **Chat Interface**: The frontend displays the user's input and the chatbot's responses in a chat interface.
