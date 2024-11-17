@@ -52,9 +52,8 @@ async function extractFeaturesFromText(text) {
 }
 
 function cleanProperties(features) {
-    const cleanedFeatures = { ...features }; // Make a copy of features to preserve immutability
+    const cleanedFeatures = { ...features };
     
-    // Ensure numbers are parsed correctly and handle null values
     cleanedFeatures.bedrooms = cleanedFeatures.bedrooms !== 'null' && cleanedFeatures.bedrooms !== null ? parseInt(cleanedFeatures.bedrooms, 10) : null;
     cleanedFeatures.bathrooms = cleanedFeatures.bathrooms !== 'null' && cleanedFeatures.bathrooms !== null ? parseInt(cleanedFeatures.bathrooms, 10) : null;
     cleanedFeatures.price = cleanedFeatures.price !== 'null' && cleanedFeatures.price !== null ? parseInt(cleanedFeatures.price) : null;

@@ -12,7 +12,7 @@ exports.generateResponse = async (message, properties) => {
             `${process.env.AZURE_OPENAI_ENDPOINT}/openai/deployments/${process.env.AZURE_OPENAI_DEPLOYMENT}/chat/completions?api-version=${process.env.AZURE_OPENAI_API_VERSION}`,
             {
                 messages: [
-                    { role: "system", content: "You are a real estate assistant providing summaries of property listings. The output will be passed to frontend in one message so it should be presentable and simple" },
+                    { role: "system", content: "You are a real estate assistant providing summaries of property listings." },
                     { role: "user", content: userMessage }
                 ],
                 max_tokens: 4096,

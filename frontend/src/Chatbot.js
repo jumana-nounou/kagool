@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./Chatbot.css"; // Import the CSS file
+import "./Chatbot.css"; 
 
 function Chatbot() {
     const [query, setQuery] = useState("");
